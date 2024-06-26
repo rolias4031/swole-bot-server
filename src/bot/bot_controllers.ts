@@ -1,7 +1,14 @@
 import { Context } from 'grammy';
+import {
+  type Conversation,
+  type ConversationFlavor,
+  conversations,
+  createConversation,
+} from '@grammyjs/conversations';
 import supabase from '../config/supabase';
+import { MyContext } from './bot';
 
-export async function link_token_to_chat_id(ctx: Context) {
+export async function link_token_to_chat_id(ctx: MyContext) {
   const token = ctx.match;
   const telegram_chat_id = ctx.chat?.id.toString();
 
@@ -16,29 +23,48 @@ export async function link_token_to_chat_id(ctx: Context) {
   // fetch token, validate token
   const { data: user_token_data, error: user_token_error } = await supabase
     .from('user_token')
-    .select('token, telegram_chat_id')
-    .eq('token', token);
+    .select('token, telegram_chat_id, is_valid')
+    .eq('token', token)
+    .limit(1)
+    .single();
 
-  if (!user_token_data) {
-    return ctx.reply("The token you submitted doesn't exist");
+  if (user_token_error) {
+    return ctx.reply('Invalid token or database error.');
   }
-  const has_telegram_chat_id = !!user_token_data[0].telegram_chat_id;
-  if (has_telegram_chat_id) {
-    return ctx.reply('This token is already linked.');
+  if (user_token_data.telegram_chat_id || !user_token_data.is_valid) {
+    return ctx.reply('This token is already linked or is invalid.');
   }
 
   // proceed with linking token to telegram_chat_id
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from('user_token')
     .update({
       telegram_chat_id,
     })
     .eq('token', token);
 
-  if (error && !data) {
-    return ctx.reply(`Something went wrong: ${error.message}`)
+  if (error) {
+    return ctx.reply(`Something went wrong linking your token.`);
   }
 
-  return ctx.reply("You're linked. You can now use Growth Mate.")
-  
+  return ctx.reply("You're linked. You can now use Growth Mate.");
+}
+
+export async function is_valid_user(
+  telegram_chat_id: string | undefined,
+): Promise<boolean> {
+  if (!telegram_chat_id) return false;
+
+  const { data: user_token, error } = await supabase
+    .from('user_token')
+    .select('token, telegram_chat_id, is_valid')
+    .eq('telegram_chat_id', telegram_chat_id)
+    .limit(1)
+    .single();
+
+  if (!user_token || !user_token.token || !user_token.is_valid || error) {
+    return false;
+  }
+
+  return true;
 }

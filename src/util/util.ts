@@ -14,7 +14,24 @@ export function extract_completion_message(completion: ChatCompletion): string {
   throw new Error('Invalid completion structure or content is not a string');
 }
 
-export async function is_valid_token_and_chat_id(ctx: Context): Promise<boolean> {
+export function extract_message_text(ctx: Context) {
+  return ctx.msg?.text;
+}
+
+export function extract_message_and_chat_id(ctx: Context) {
+  return {
+    message: extract_message_text(ctx),
+    telegram_chat_id: extract_telegram_chat_id(ctx),
+  };
+}
+
+export function extract_telegram_chat_id(ctx: Context) {
+  return ctx.chat?.id.toString();
+}
+
+export async function is_valid_token_and_chat_id(
+  ctx: Context,
+): Promise<boolean> {
   const chatId = ctx.chat?.id;
   if (!chatId) return false;
   const { data, error } = await supabase

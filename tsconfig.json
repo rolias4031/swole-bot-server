@@ -104,13 +104,5 @@
     /* Completeness */
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true,
-    "typeRoots": ["./node_modules/@types", "./types"],
-    "paths": {
-      "@/*": ["./*"]
-    }
   },
-  "include": [
-  "**/*.ts",
-  "**/*.tsx",
-  "src/types/database.types.ts"]
 }

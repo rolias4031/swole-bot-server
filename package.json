@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@grammyjs/conversations": "^1.2.0",
     "@supabase/supabase-js": "^2.43.6",
     "express": "^4.19.2",
     "grammy": "^1.25.1",
