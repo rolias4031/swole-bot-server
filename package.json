@@ -1,0 +1,23 @@
+{
+  "dependencies": {
+    "@supabase/supabase-js": "^2.43.6",
+    "express": "^4.19.2",
+    "grammy": "^1.25.1",
+    "node-cron": "^3.0.3",
+    "openai": "^4.52.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.14.8",
+    "@types/node-cron": "^3.0.11",
+    "dotenv": "^16.4.5",
+    "nodemon": "^3.1.4",
+    "supabase": "^1.178.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.2"
+  },
+  "scripts": {
+    "start": "node app.ts",
+    "dev": "nodemon src/app.ts"
+  }
+}
