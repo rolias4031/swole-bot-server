@@ -70,6 +70,13 @@ const IS_NEGATIVE_ANSWER_CONTEXT: Array<ChatCompletionMessageParam> = [
   { role: 'assistant', content: 'CONTINUE' },
 ];
 
+const CONVERT_WORKOUTS_TO_JSON_CONTEXT: Array<ChatCompletionMessageParam> = [
+  {
+    role: 'system',
+    content: `You're an intelligent bot that converts raw workout data into structured JSON. Please take the workout data I have you and convert it to JSON.`,
+  },
+];
+
 export async function triage_user_message(message: string) {
   const completion = await openai.chat.completions.create({
     model: 'gpt-4-turbo',
@@ -91,4 +98,15 @@ export async function is_negative_answer(message: string) {
     }),
   });
   return completion;
+}
+
+export async function prepare_workout_data(raw_workout_data: Array<string>) {
+  const raw_workout_string = raw_workout_data.join();
+  const completion = await openai.chat.completions.create({
+    model: 'gpt-4o',
+    messages: CONVERT_WORKOUTS_TO_JSON_CONTEXT,
+    response_format: {
+      type: 'json_object',
+    },
+  });
 }

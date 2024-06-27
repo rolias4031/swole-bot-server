@@ -17,9 +17,7 @@ import {
   createConversation,
 } from '@grammyjs/conversations';
 
-interface SessionData {
-  messages: Array<string>;
-}
+interface SessionData {}
 
 export type MyContext = Context &
   SessionFlavor<SessionData> &
@@ -29,7 +27,7 @@ export type MyConversation = Conversation<MyContext>;
 const bot = new Bot<MyContext>(process.env.TELEGRAM_BOT_TOKEN || '');
 
 function createInitialSessionData(): SessionData {
-  return { messages: [] };
+  return {};
 }
 
 bot.use(session({ initial: createInitialSessionData }));
@@ -39,10 +37,10 @@ async function upload_conversation(
   conversation: MyConversation,
   ctx: MyContext,
 ) {
-  const workouts: Array<string> = [ctx.msg?.text || '']
+  const workouts: Array<string> = [ctx.msg?.text || ''];
   let flag = true;
   while (flag) {
-    conversation.log(workouts)
+    conversation.log(workouts);
     await ctx.reply('Awesome! Any other exercises for this workout?');
     const user_answer = await conversation.wait();
     const message = extract_message_text(user_answer);
@@ -56,7 +54,7 @@ async function upload_conversation(
     if (completion_text === 'END') {
       return await ctx.reply('Got it, uploading now.');
     }
-    workouts.push(message)
+    workouts.push(message);
   }
 }
 
