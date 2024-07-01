@@ -9,6 +9,59 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      exercise: {
+        Row: {
+          created_at: string
+          distance: number | null
+          distance_units: string | null
+          duration: number | null
+          duration_units: string
+          id: number
+          name: string
+          reps: number | null
+          sets: number | null
+          weight: number | null
+          weight_units: string | null
+          workout_id: number
+        }
+        Insert: {
+          created_at?: string
+          distance?: number | null
+          distance_units?: string | null
+          duration?: number | null
+          duration_units: string
+          id?: number
+          name?: string
+          reps?: number | null
+          sets?: number | null
+          weight?: number | null
+          weight_units?: string | null
+          workout_id: number
+        }
+        Update: {
+          created_at?: string
+          distance?: number | null
+          distance_units?: string | null
+          duration?: number | null
+          duration_units?: string
+          id?: number
+          name?: string
+          reps?: number | null
+          sets?: number | null
+          weight?: number | null
+          weight_units?: string | null
+          workout_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exercise_workout_id_fkey"
+            columns: ["workout_id"]
+            isOneToOne: false
+            referencedRelation: "workout"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_token: {
         Row: {
           created_at: string
@@ -48,28 +101,36 @@ export type Database = {
         Row: {
           created_at: string
           duration: string | null
-          exercises: Json
           id: number
           location: string | null
           setting: string | null
+          user_id: string | null
         }
         Insert: {
           created_at?: string
           duration?: string | null
-          exercises: Json
           id?: number
           location?: string | null
           setting?: string | null
+          user_id?: string | null
         }
         Update: {
           created_at?: string
           duration?: string | null
-          exercises?: Json
           id?: number
           location?: string | null
           setting?: string | null
+          user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "workout_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

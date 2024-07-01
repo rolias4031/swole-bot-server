@@ -7,6 +7,8 @@ import {
 } from '@grammyjs/conversations';
 import supabase from '../config/supabase';
 import { MyContext } from './bot';
+import { prepare_workout_data } from '../util/openai';
+import { extract_openai_completion_message } from '../util/util';
 
 export async function link_token_to_chat_id(ctx: MyContext) {
   const token = ctx.match;
@@ -67,4 +69,11 @@ export async function is_valid_user(
   }
 
   return true;
+}
+
+export async function convert_raw_workouts_to_json(workouts: Array<string>) {
+  const json_completion = await prepare_workout_data(workouts);
+  const json_completion_text =
+    extract_openai_completion_message(json_completion);
+  return json_completion_text;
 }

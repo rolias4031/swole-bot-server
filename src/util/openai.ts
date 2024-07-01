@@ -1,5 +1,6 @@
 import { ChatCompletionMessageParam } from 'openai/resources';
 import { openai } from '../config/openai';
+import { Excercise } from '../types';
 
 export const TRIAGE_OPTIONS = {
   UPLOAD: 'UPLOAD',
@@ -73,7 +74,58 @@ const IS_NEGATIVE_ANSWER_CONTEXT: Array<ChatCompletionMessageParam> = [
 const CONVERT_WORKOUTS_TO_JSON_CONTEXT: Array<ChatCompletionMessageParam> = [
   {
     role: 'system',
-    content: `You're an intelligent bot that converts raw workout data into structured JSON. Please take the workout data I have you and convert it to JSON.`,
+    content: `You're an intelligent bot that converts raw workout data into structured JSON. Please take the workout data I give you and convert it to JSON. Here is the shape the JSON should take:
+    {
+      "exercises": [
+        {
+          "name": "string",
+          "weight": "number | null",
+          "reps": "number | null",
+          "sets": "number | null",
+          "distance": "number | null",
+          "duration": "number | null"
+        }
+      ]
+    }
+
+    All values are optional except name. If an exercise is missing properties, make them null.
+    `,
+  },
+  {
+    role: 'user',
+    content:
+      'bench press - 150 8 reps 4 sets, squats - 200 10 reps 5 sets, run 5 miles for 35 minutes',
+  },
+  {
+    role: 'assistant',
+    content: `{
+      "exercises": [
+        {
+          "name": "bench press",
+          "weight": 150,
+          "reps": 8,
+          "sets": 4,
+          "distance": null,
+          "duration": null
+        },
+        {
+          "name": "squats",
+          "weight": 200,
+          "reps": 10,
+          "sets": 5,
+          "distance": null,
+          "duration": null
+        },
+        {
+          "name": "run",
+          "weight": null,
+          "reps": null,
+          "sets": null,
+          "distance": "5 miles",
+          "duration": "35 minutes"
+        }
+      ]
+    }`,
   },
 ];
 
@@ -104,9 +156,27 @@ export async function prepare_workout_data(raw_workout_data: Array<string>) {
   const raw_workout_string = raw_workout_data.join();
   const completion = await openai.chat.completions.create({
     model: 'gpt-4o',
-    messages: CONVERT_WORKOUTS_TO_JSON_CONTEXT,
+    messages: CONVERT_WORKOUTS_TO_JSON_CONTEXT.concat({
+      role: 'user',
+      content: raw_workout_string,
+    }),
     response_format: {
       type: 'json_object',
     },
   });
+  return completion;
+}
+
+export function validate_json_and_convert_to_object(json_data: string): {
+  valid: boolean;
+  workout_object: { exercises: Array<Excercise> } | null;
+} {
+  console.log(json_data);
+  try {
+    const workout_object = JSON.parse(json_data);
+    return { valid: true, workout_object };
+  } catch (error) {
+    console.log(error);
+    return { valid: false, workout_object: null };
+  }
 }

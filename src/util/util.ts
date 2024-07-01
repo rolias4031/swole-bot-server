@@ -1,8 +1,29 @@
 import { Context } from 'grammy';
 import { ChatCompletion } from 'openai/resources';
 import supabase from '../config/supabase';
+import { Excercise, ExerciseForUpload } from '../types';
 
-export function extract_completion_message(completion: ChatCompletion): string {
+export function prepare_exercises_for_upload(
+  exercises: Array<Excercise>,
+  workout_id: number,
+): Array<ExerciseForUpload> {
+  return exercises.map((e) => ({
+    name: e.name,
+    weight: e.weight,
+    reps: e.reps,
+    sets: e.sets,
+    distance: e.distance,
+    duration: e.duration,
+    distance_units: 'miles',
+    duration_units: 'minutes',
+    weight_units: 'lbs',
+    workout_id,
+  }));
+}
+
+export function extract_openai_completion_message(
+  completion: ChatCompletion,
+): string {
   if (
     completion.choices &&
     completion.choices.length > 0 &&
